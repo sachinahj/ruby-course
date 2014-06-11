@@ -1,7 +1,7 @@
 
 class TM::Project
   attr_reader :name, :id, :tasks
-  @@counter = 0
+  @@counter = 111
   @@projects =[]
   def initialize(name)
     @name = name
@@ -9,6 +9,9 @@ class TM::Project
     @@counter += 1
     @tasks = []
     @@projects << self
+  end
+  def self.projects
+    @@projects
   end
 
   def get_complete_tasks
@@ -30,7 +33,7 @@ class TM::Project
         list.push(x)
       end
     end
-    list = list.sort {|x,y| [x.priority, y.date] <=> [y.priority, x.date]}
+    list = list.sort {|x,y| [x.priority, x.date] <=> [y.priority, y.date]}
     # p list
   end
 
