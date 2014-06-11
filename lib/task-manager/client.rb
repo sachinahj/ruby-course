@@ -1,17 +1,12 @@
-
-
 class TM::Client
   def initialize
   end
+
   def start
     puts "Welcome to Project Manager Lite"
     help
     client
   end
-
-
-
-
 
   private
   def help
@@ -98,19 +93,14 @@ class TM::Client
 
 end
 
-TM::Project.new("project 1")
-TM::Project.new("project 2")
-TM::Project.new("project 3")
+# TM::Project.new("project 1")
+# TM::Project.new("project 2")
+# TM::Project.new("project 3")
 
-task1 = TM::Task.new(111, "Task 1", 3)
-task2 = TM::Task.new(111, "Task 2", 3)
-task3 = TM::Task.new(111, "Task 3", 1)
-TM::Task.mark_complete(task1.id)
-
-
-
-
-
+# task1 = TM::Task.new(111, "Task 1", 3)
+# task2 = TM::Task.new(111, "Task 2", 3)
+# task3 = TM::Task.new(111, "Task 3", 1)
+# TM::Task.mark_complete(task1.id)
 
 system('clear')
 TM::Client.new.start
