@@ -1,6 +1,6 @@
 require 'pg'
 
-db = PG.connect(host: 'localhost', dbname: 'task_manager_database')
+db = PG.connect(host: 'localhost', dbname: 'task_manager_db')
 
 command = <<-SQL
 CREATE TABLE employees(

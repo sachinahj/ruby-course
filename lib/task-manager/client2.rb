@@ -60,29 +60,68 @@ class TM::Client
   def action(args)
     case args[0]
     when "help"
-      p 'in the help!'
+      # p 'in the help!'
       help
       client
     when "project"
       case args[1]
       when "list"
-        p "in project list"
-        TM.db.list_projects
+        # p "in project list"
+        result = TM.db.list_projects
+        puts "--Projects List--"
+        puts "PID, Project Name"
+        result.each do |x|
+          puts "#{x[0]}, #{x[1]}"
+        end
+        client
       when "create"
-        p "in project create"
-        TM.db.create_project(args[2])
+        # p "in project create"
+        result = TM.db.create_project(args[2])
+        pid = result[0][0]
+        name = result[0][1]
+        puts "--Project Created--"
+        puts "Project ID: #{pid}"
+        puts "Project Name: #{name}"
+        client
       when "show"
-        p "in project show"
-        TM.db.show_project_tasks(args[2])
+        # p "in project show"
+        result = TM.db.show_project_tasks(args[2])
+        project = result.shift
+        project_id = project[0]
+        project_name = project[1]
+        puts "--Remaining Task for #{project_name}(PID: #{project_id})--"
+        puts "TID, PID, Description, Priority"
+        result.each do |x|
+          puts "#{x[0]}, #{x[1]}, #{x[2]}, #{x[3]}"
+        end
+        client
       when "history"
-        p "in project history"
-        TM.db.show_completed_tasks(args[2])
+        # p "in project history"
+        result = TM.db.show_completed_tasks(args[2])
+        project = result.shift
+        project_id = project[0]
+        project_name = project[1]
+        puts "--Completed Task for #{project_name}(PID: #{project_id})--"
+        puts "TID, PID, Description, Priority"
+        result.each do |x|
+          puts "#{x[0]}, #{x[1]}, #{x[2]}, #{x[3]}"
+        end
+        client
       when "employees"
         p "in project employees"
         TM.db.show_project_employees(args[2])
       when "recruit"
-        p "in project recruit"
-        TM.db.recruit(args[2], args[3])
+        # p "in project recruit"
+        result = TM.db.recruit(args[2], args[3])
+        pid = result[0][0]
+        pname = result[0][1]
+        eid = result[1][0]
+        ename = result[1][1]
+        if result[2] != nil
+          puts "Employee: #{ename}(#{eid}) added to Project: #{pname}(#{pid})"
+        else 
+          puts "Employee not added to project."
+        end
       else
         puts "Not a valid project input"
         client
@@ -90,8 +129,19 @@ class TM::Client
     when "task"
       case args[1]
       when "create"
-        p "in task create"
-        TM.db.create_task(args[2], args[3], args[4])
+        # p "in task create"
+        result = TM.db.create_task(args[2], args[3], args[4])
+        tid = result[0][0]
+        pid = result[0][1]
+        description = result[0][2]
+        priority = result[0][3]
+        complete = result[0][4]
+        puts "--Task Created--"
+        puts "Task ID: #{tid}"
+        puts "Project ID: #{pid}"
+        puts "Description: #{description}"
+        puts "Priority: #{priority}"
+        client
       when "assign"
         p "in task assign"
         TM.db.assign_task(args[2], args[3])
@@ -102,11 +152,23 @@ class TM::Client
     when "emp"
       case args[1]
       when "list"
-        p "in emp list"
-        TM.db.list_employees
+        # p "in emp list"
+        result = TM.db.list_employees
+        puts "--Employee List--"
+        puts "ID, Employee Name"
+        result.each do |x|
+          puts "#{x[0]}, #{x[1]}"
+        end
+        client
       when "create"
-        p "in emp create"
-        TM.db.create_employee(args[2])
+        # p "in emp create"
+        result = TM.db.create_employee(args[2])
+        eid = result[0][0]
+        name = result[0][1]
+        puts "--Employee Created--"
+        puts "Employee ID: #{eid}"
+        puts "Employee Name: #{name}"
+        client
       when "show"
         p "in emp show"
         TM.db.employee_info(args[2])
