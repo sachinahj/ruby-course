@@ -102,5 +102,5 @@ end
 # task3 = TM::Task.new(111, "Task 3", 1)
 # TM::Task.mark_complete(task1.id)
 
-system('clear')
-TM::Client.new.start
+# system('clear')
+# TM::Client.new.start
