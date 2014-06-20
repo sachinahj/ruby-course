@@ -60,68 +60,55 @@ class TM::Client
   def action(args)
     case args[0]
     when "help"
-      # p 'in the help!'
       help
       client
     when "project"
       case args[1]
       when "list"
-        # p "in project list"
-        result = TM.db.list_projects
+        params = TM.db.list_projects
         puts "--Projects List--"
-        puts "PID, Project Name"
-        result.each do |x|
-          puts "#{x[0]}, #{x[1]}"
+        puts "(PID) Project Name"
+        params.each do |x|
+          puts "(#{x['id']}) #{x['name']}"
         end
         client
       when "create"
-        # p "in project create"
-        result = TM.db.create_project(args[2])
-        pid = result[0][0]
-        name = result[0][1]
+        params = TM.db.create_project(args[2])
         puts "--Project Created--"
-        puts "Project ID: #{pid}"
-        puts "Project Name: #{name}"
+        puts "Project ID: #{params[0]['id']}"
+        puts "Project Name: #{params[0]['name']}"
         client
       when "show"
-        # p "in project show"
-        result = TM.db.show_project_tasks(args[2])
-        project = result.shift
-        project_id = project[0]
-        project_name = project[1]
-        puts "--Remaining Task for #{project_name}(PID: #{project_id})--"
-        puts "TID, PID, Description, Priority"
-        result.each do |x|
-          puts "#{x[0]}, #{x[1]}, #{x[2]}, #{x[3]}"
+        params = TM.db.show_project_tasks(args[2])
+        project = params.shift
+        puts "--Remaining Task for #{project['name']} (PID: #{project['id']})--"
+        puts "(TID) (PID) Description (Priority)"
+        params.each do |x|
+          puts "(#{x['id']}) (#{x['project_id']}) #{x['description']} (#{x['priority']})"
         end
         client
       when "history"
-        # p "in project history"
-        result = TM.db.show_completed_tasks(args[2])
-        project = result.shift
-        project_id = project[0]
-        project_name = project[1]
-        puts "--Completed Task for #{project_name}(PID: #{project_id})--"
-        puts "TID, PID, Description, Priority"
-        result.each do |x|
-          puts "#{x[0]}, #{x[1]}, #{x[2]}, #{x[3]}"
+        params = TM.db.show_completed_tasks(args[2])
+        project = params.shift
+        puts "--Completed Task for #{project['name']} (PID: #{project['id']})--"
+        puts "(TID) (PID) Description (Priority)"
+        params.each do |x|
+          puts "(#{x['id']}) (#{x['project_id']}) #{x['description']} (#{x['priority']})"
         end
         client
       when "employees"
-        p "in project employees"
-        TM.db.show_project_employees(args[2])
-      when "recruit"
-        # p "in project recruit"
-        result = TM.db.recruit(args[2], args[3])
-        pid = result[0][0]
-        pname = result[0][1]
-        eid = result[1][0]
-        ename = result[1][1]
-        if result[2] != nil
-          puts "Employee: #{ename}(#{eid}) added to Project: #{pname}(#{pid})"
-        else 
-          puts "Employee not added to project."
+        params = TM.db.show_project_employees(args[2])
+        project = params.shift
+        puts "--Employees on #{project['name']} (PID: #{project['id']})--"
+        puts "(EID) Employee Name"
+        params.each do |x|
+          puts "(#{x['id']}) #{x['name']}"
         end
+        client
+      when "recruit"
+        params = TM.db.recruit(args[2], args[3])
+        puts "Employee: #{params[1]['name']} (EID: #{params[1]['id']}) added to Project: #{params[0]['name']} (PID: #{params[0]['id']})"
+        client
       else
         puts "Not a valid project input"
         client
@@ -129,55 +116,75 @@ class TM::Client
     when "task"
       case args[1]
       when "create"
-        # p "in task create"
-        result = TM.db.create_task(args[2], args[3], args[4])
-        tid = result[0][0]
-        pid = result[0][1]
-        description = result[0][2]
-        priority = result[0][3]
-        complete = result[0][4]
+        param = TM.db.create_task(args[2], args[3], args[4])
         puts "--Task Created--"
-        puts "Task ID: #{tid}"
-        puts "Project ID: #{pid}"
-        puts "Description: #{description}"
-        puts "Priority: #{priority}"
+        puts "Task ID: #{param[0]['id']}"
+        puts "Project ID: #{param[0]['project_id']}"
+        puts "Description: #{param[0]['description']}"
+        puts "Priority: #{param[0]['priority']}"
         client
       when "assign"
-        p "in task assign"
-        TM.db.assign_task(args[2], args[3])
+        params = TM.db.assign_task(args[2], args[3])
+        puts "Task: #{params[0]['description']} (TID: #{params[0]['id']}) assigned to Employee: #{params[1]['name']} (EID: #{params[1]['id']})"
+        client
       when "mark"
-        p "in task mark"
-        TM.db.mark_task_complete(args[2])
+        params = TM.db.mark_task_complete(args[2])
+        puts "Task: #{params[0]['description']} (TID: #{params[0]['id']}) marked as COMPLETE"
+        client
+      else 
+        puts "Not a valid task input"
+        client
       end
     when "emp"
       case args[1]
       when "list"
-        # p "in emp list"
-        result = TM.db.list_employees
+        params = TM.db.list_employees
         puts "--Employee List--"
-        puts "ID, Employee Name"
-        result.each do |x|
-          puts "#{x[0]}, #{x[1]}"
+        puts "(ID) Employee Name"
+        params.each do |x|
+          puts "(#{x['id']}) #{x['name']}"
         end
         client
       when "create"
-        # p "in emp create"
-        result = TM.db.create_employee(args[2])
-        eid = result[0][0]
-        name = result[0][1]
+        params = TM.db.create_employee(args[2])
         puts "--Employee Created--"
-        puts "Employee ID: #{eid}"
-        puts "Employee Name: #{name}"
+        puts "Employee ID: #{params[0]['id']}"
+        puts "Employee Name: #{params[0]['name']}"
         client
       when "show"
-        p "in emp show"
-        TM.db.employee_info(args[2])
+        params = TM.db.employee_info(args[2])
+        employee = params.shift
+        puts "--Employee: #{employee['name']} (EID: #{employee['id']}) projects--"
+        puts "(PID) Project Name"
+        params.each do |x|
+          puts "(#{x['id']}) #{x['name']}"
+        end
+        client
       when "details"
-        p "in emp details" 
-        TM.db.employee_details(args[2])
+        params = TM.db.employee_details(args[2])
+        projects = params.pop
+        tasks = params.pop
+        employee = params.pop
+        puts "--Remaining Tasks for Employee: #{employee[0]['name']} (EID: #{employee[0]['id']})--"
+        puts "(TID) Task Description (Priority) | (PID) Project Name"
+        tasks.each_index do |x|
+          puts "(#{tasks[x]['id']}) #{tasks[x]['description']} (#{tasks[x]['priority']}) | (#{projects[x]['id']}) #{projects[x]['name']}"
+        end
+        client
       when "history"
-        p "in emp history"
-        TM.db.employee_history(args[2])
+        params = TM.db.employee_history(args[2])
+        projects = params.pop
+        tasks = params.pop
+        employee = params.pop
+        puts "--Completed Tasks for Employee: #{employee[0]['name']} (EID: #{employee[0]['id']})--"
+        puts "(TID) Task Description (Priority) | (PID) Project Name"
+        tasks.each_index do |x|
+          puts "(#{tasks[x]['id']}) #{tasks[x]['description']} (#{tasks[x]['priority']}) | (#{projects[x]['id']}) #{projects[x]['name']}"
+        end
+        client
+      else 
+        puts "Not a valid emp input"
+        client
       end
     when "exit" 
       puts "Good-bye"

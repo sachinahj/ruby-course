@@ -13,173 +13,290 @@ module TM
       command = <<-SQL
         SELECT * FROM projects;
       SQL
-
       result = @db.exec(command)
-      result.values
+      params = result.map {|x| x}
     end
+      
     def create_project(name)
-
       command = <<-SQL
         INSERT INTO projects( name )
         VALUES ( '#{name}' )
         returning *;
       SQL
-
       result = @db.exec(command)
-      result.values
+      params = result.map{|x| x}
     end
-    def show_project_tasks(pid)
 
+    def show_project_tasks(pid)
       command = <<-SQL
         SELECT * FROM projects WHERE id='#{pid}';
       SQL
       result1 = @db.exec(command)
-      # p result1.values
+      params1 = result1.map {|x| x}
 
       command = <<-SQL
         SELECT * FROM tasks WHERE project_id='#{pid}' AND complete='false';
       SQL
-
       result2 = @db.exec(command)
-      # p result2.values
+      params2 = result2.map {|x| x}
 
-      result = result1.values + result2.values
-      # p result
+      params = params1 + params2   
     end
-    def show_completed_tasks(pid)
 
+    def show_completed_tasks(pid)
       command = <<-SQL
         SELECT * FROM projects WHERE id='#{pid}';
       SQL
       result1 = @db.exec(command)
-      # p result1.values
+      params1 = result1.map {|x| x}
 
       command = <<-SQL
         SELECT * FROM tasks WHERE project_id='#{pid}' AND complete='true';
       SQL
-
       result2 = @db.exec(command)
-      # p result2.values
+      params2 = result2.map {|x| x}
 
-      result = result1.values + result2.values
-      # p result
+      params = params1 + params2
     end
+
     def show_project_employees(pid)
-
-      command = <<-SQL
-        SELECT * FROM projects_employees WHERE project_id='#{pid}';
-      SQL
-
-      result = @db.exec(command)
-      p result.values
-    end
-    def recruit(pid, eid)
-
       command = <<-SQL
         SELECT * FROM projects WHERE id='#{pid}';
       SQL
       result1 = @db.exec(command)
-      # p result1.values
+      params1 = result1.map {|x| x}
+
+      command = <<-SQL
+        SELECT * FROM projects_employees WHERE project_id='#{pid}';
+      SQL
+      result2 = @db.exec(command)
+      params2 = result2.map {|x| x}
+
+      result3 =[]
+      params2.each do |x|
+        command = <<-SQL
+          SELECT * FROM employees WHERE id='#{x['employee_id']}';
+        SQL
+        result3 << @db.exec(command)
+      end
+      params3 = []
+      result3.each do |x|
+        x.each do |y|
+         params3 << y 
+        end
+      end
+
+      params = params1 + params3
+    end
+
+    def recruit(pid, eid)
+      command = <<-SQL
+        SELECT * FROM projects WHERE id='#{pid}';
+      SQL
+      result1 = @db.exec(command)
+      params1 = result1.map {|x| x}
 
       command = <<-SQL
         SELECT * FROM employees WHERE id='#{eid}'
       SQL
-
       result2 = @db.exec(command)
-      # p result2.values
+      params2 = result2.map {|x| x}
 
       command = <<-SQL
         INSERT INTO projects_employees( project_id, employee_id )
         VALUES ( '#{pid}', '#{eid}' )
         returning *;
       SQL
-
       result3 = @db.exec(command)
-      # p result3.values
+      params3 = result3.map {|x| x}
 
-      result = result1.values + result2.values + result3.values
-      # p result
+      params = params1 + params2 + params3
     end
 
     def create_task (pid, priority, description)
-
       command = <<-SQL
         INSERT INTO tasks( project_id, priority, description, complete)
         VALUES ( '#{pid}', '#{priority}', '#{description}', 'false' )
         returning *;
       SQL
-
       result = @db.exec(command)
-      result.values
-
+      params = result.map {|x| x}
     end
+
     def assign_task(tid, eid)
+      command = <<-SQL
+        SELECT * FROM tasks WHERE id='#{tid}';
+      SQL
+      result1 = @db.exec(command)
+      params1 = result1.map {|x| x}
+
+      command = <<-SQL
+        SELECT * FROM employees WHERE id='#{eid}'
+      SQL
+      result2 = @db.exec(command)
+      params2 = result2.map {|x| x}
 
       command = <<-SQL
         INSERT INTO tasks_employees( task_id, employee_id )
         VALUES ( '#{tid}', '#{eid}' )
         returning *;
       SQL
-
-      result = @db.exec(command)
-      p result.values
+      result3 = @db.exec(command)
+      params3 = result3.map {|x| x}
+      
+      params = params1 + params2 + params3
     end
+
     def mark_task_complete(tid)
-
       command = <<-SQL
-        
+        UPDATE tasks SET complete = 'true' WHERE id = '#{tid}'
+        returning *;
       SQL
-
       result = @db.exec(command)
-      p result.values
+      params = result.map {|x| x}
     end
-    def list_employees
 
+    def list_employees
       command = <<-SQL
         SELECT * FROM employees;
       SQL
-
       result = @db.exec(command)
-      result.values
+      params = result.map {|x| x}
     end
-    def create_employee(name)
 
+    def create_employee(name)
       command = <<-SQL
         INSERT INTO employees( name )
         VALUES ( '#{name}' )
         returning *;
       SQL
-
       result = @db.exec(command)
-      result.values
+      params = result.map {|x| x}
     end
+
     def employee_info(eid)
+      command = <<-SQL
+        SELECT * FROM employees WHERE id='#{eid}' LIMIT 1;
+      SQL
+      result1 = @db.exec(command)
+      params1 = result1.map {|x| x}
 
       command = <<-SQL
-        SELECT * FROM employees WHERE id='#{eid}';
+        SELECT * FROM projects_employees WHERE employee_id='#{eid}';
       SQL
+      result2 = @db.exec(command)
+      params2 = result2.map {|x| x}
 
-      result = @db.exec(command)
-      p result.values
+      pids = params2.map {|x| x['project_id']}
+      result3 = []
+      pids.each do |x|
+        command = <<-SQL
+          SELECT * FROM projects WHERE id='#{x}';
+        SQL
+        result3 << @db.exec(command)
+      end
+      params3 = []
+      result3.each do |x|
+        x.each do |y|
+         params3 << y 
+        end
+      end
+
+      params = params1 + params3
     end
+    
     def employee_details(eid)
-
       command = <<-SQL
         SELECT * FROM employees WHERE id='#{eid}';
       SQL
+      result1 = @db.exec(command)
+      params1 = result1.map {|x| x}
 
-      result = @db.exec(command)
-      p result.values
+      command = <<-SQL
+        SELECT * FROM tasks_employees WHERE employee_id='#{eid}';
+      SQL
+      result2 = @db.exec(command)
+      params2 = result2.map {|x| x}
+
+      tids = params2.map {|x| x['task_id']}
+      result3 = []
+      tids.each do |x|
+        command = <<-SQL
+          SELECT * FROM tasks WHERE id='#{x}' AND complete='false';
+        SQL
+        result3 << @db.exec(command)
+      end
+      params3 = []
+      result3.each do |x|
+        x.each do |y|
+         params3 << y 
+        end
+      end
+
+      pids = params3.map {|x| x['project_id']}
+      result4 = []
+      pids.each do |x|
+        command = <<-SQL
+          SELECT * FROM projects WHERE id='#{x}';
+        SQL
+        result4 << @db.exec(command)
+      end
+      params4 = []
+      result4.each do |x|
+        x.each do |y|
+         params4 << y 
+        end
+      end
+
+      params = [params1] + [params3] + [params4]
     end
+
     def employee_history(eid)
-
       command = <<-SQL
         SELECT * FROM employees WHERE id='#{eid}';
       SQL
+      result1 = @db.exec(command)
+      params1 = result1.map {|x| x}
 
-      result = @db.exec(command)
-      p result.values
+      command = <<-SQL
+        SELECT * FROM tasks_employees WHERE employee_id='#{eid}';
+      SQL
+      result2 = @db.exec(command)
+      params2 = result2.map {|x| x}
+
+      tids = params2.map {|x| x['task_id']}
+      result3 = []
+      tids.each do |x|
+        command = <<-SQL
+          SELECT * FROM tasks WHERE id='#{x}' AND complete='true';
+        SQL
+        result3 << @db.exec(command)
+      end
+      params3 = []
+      result3.each do |x|
+        x.each do |y|
+         params3 << y 
+        end
+      end
+
+      pids = params3.map {|x| x['project_id']}
+      result4 = []
+      pids.each do |x|
+        command = <<-SQL
+          SELECT * FROM projects WHERE id='#{x}';
+        SQL
+        result4 << @db.exec(command)
+      end
+      params4 = []
+      result4.each do |x|
+        x.each do |y|
+         params4 << y 
+        end
+      end
+
+      params = [params1] + [params3] + [params4]
     end
+
   end
 
   def self.db
