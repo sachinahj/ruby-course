@@ -6,3 +6,7 @@ else
 end
 
 # TODO: ESTABLISH ACTIVE RECORD CONNECTION
+ActiveRecord::Base.establish_connection(
+  adapter: 'postgresql',
+  database: 'honkr-2_test'
+)
