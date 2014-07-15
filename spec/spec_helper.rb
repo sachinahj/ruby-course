@@ -11,6 +11,7 @@ RSpec.configure do |config|
   # Reset database singleton before every test
   config.before do
     DoubleDog.instance_variable_set(:@__db_instance, nil)
+    DoubleDog.db.clear_everything
   end
 
   config.treat_symbols_as_metadata_keys_with_true_values = true

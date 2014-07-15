@@ -13,6 +13,17 @@ module DoubleDog
         @order_id_counter = 600
       end
 
+      def clear_everything
+        @users = {}
+        @users_id_counter = 100
+        @sessions = {}
+        @sessions_id_counter = 100
+        @items = {}
+        @item_id_counter = 500
+        @orders = {}
+        @order_id_counter = 600
+      end
+
       def create_user(attrs)
         new_id = (@item_id_counter += 1)
         @users[new_id] = attrs
